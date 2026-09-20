@@ -1,60 +1,93 @@
 #include <iostream>
-#include <unordered_set>
 #include <queue>
+#include <climits>
 using namespace std;
+
+const int SIZE = 4;
 
 struct Node
 {
-    int num;
-    int level;
-    int sum;
+    int location;       // 현재 위치
+    int time;           // 현재까지 걸린 시간
+    bool visited[SIZE]; // 이 경로에서 방문한 위치
 };
 
-char name[5] = "NGYD";
-int map[4][4] =
+int changeIndex(char location)
 {
-    0,80,30,60,
-    80,0,40,0,
-    30,40,0,70,
-    60,0,70,0,
-};
+    if (location == 'N')
+        return 0; // 노원
+    if (location == 'G')
+        return 1; // 강남
+    if (location == 'Y') 
+        return 2; // 용산
 
-char path[5] = "";
-int used[5] = {};
-int MIN = 9999;
-
-void bfs(int now, int level, int sum)
-{
-    queue<Node> q;
-    q.push({ now, level, sum });
-    used[0] = 1;
-
-    while (!q.empty())
-    {
-        Node now = q.front();
-
-        if (name[now.num] == 'G')
-        {
-            if (now.sum < MIN)
-                MIN = now.sum;
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (used[i] == 1)
-                continue;
-            if (map[now.num][i] == 0)
-                continue;
-
-            used[i] = 1;
-            q.push({ i, now.level + 1, now.sum + map[now.num][i] });
-        }
-    }
+    return 3;                      // 대화(D)
 }
 
 int main()
 {
-    bfs(0, 0, 0);
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    char startName, destinationName;
+    cin >> startName >> destinationName;
+
+    /*
+        0: 노원(N)
+        1: 강남(G)
+        2: 용산(Y)
+        3: 대화(D)
+    */
+    int road[SIZE][SIZE] =
+    {
+        {0,  80, 30, 60},
+        {80, 0,  40, 0 },
+        {30, 40, 0,  70},
+        {60, 0,  70, 0 }
+    };
+
+    int start = changeIndex(startName);
+    int destination = changeIndex(destinationName);
+
+    queue<Node> q;
+
+    Node first{};
+    first.location = start;
+    first.time = 0;
+    first.visited[start] = true;
+
+    q.push(first);
+
+    int answer = INT_MAX;
+
+    while (!q.empty())
+    {
+        Node now = q.front();
+        q.pop();
+
+        if (now.location == destination)
+        {
+            if (now.time < answer)
+            {
+                answer = now.time;
+            }
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (road[now.location][i] == 0)
+                continue;
+            if (now.visited[i])
+                continue;
+
+            Node next;
+            next.location = i;
+            next.time = now.time + road[now.location][i];
+            memcpy(next.visited, now.visited, 4);
+            next.visited[i] = true;
+            q.push(next);
+        }
+    }
 
     return 0;
 }
