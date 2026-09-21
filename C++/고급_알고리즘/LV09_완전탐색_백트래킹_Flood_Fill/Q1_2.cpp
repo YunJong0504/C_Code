@@ -1,62 +1,54 @@
 #include <iostream>
 #include <queue>
-
 using namespace std;
 
 int map[3][5] =
 {
-    {0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0},
-    {0, 0, 0, 0, 1}
+    0,0,0,0,1,
+    1,0,1,0,0,
+    0,0,0,0,1,
 };
 
-int dx[4] = { 0, 0, -1, 1 };
-int dy[4] = { -1, 1, 0, 0 };
+struct Node
+{
+    int y, x;
+};
 
-int bfs(int startX, int startY, int endX, int endY)
+int dy[4] = { -1,1,0,0 };
+int dx[4] = { 0,0,-1,1 };
+
+int bfs(int startY, int startX, int endY, int endX)
 {
     int visited[3][5] = {};
 
-    queue<pair<int, int>> q;
+    queue<Node> q;
 
-    q.push({ startX, startY });
+    q.push({ startY,startX });
     visited[startY][startX] = 0;
 
     while (!q.empty())
     {
-        int x = q.front().first;
-        int y = q.front().second;
+        Node now = q.front();
         q.pop();
 
-        if (x == endX && y == endY)
-        {
-            return visited[y][x];
-        }
+        if (now.y == endY && now.x == endX)
+            return visited[now.y][now.x];
 
         for (int i = 0; i < 4; i++)
         {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
-            if (nx < 0 || nx >= 5 ||
-                ny < 0 || ny >= 3)
-            {
-                continue;
-            }
+            int ny = now.y + dy[i];
+            int nx = now.x + dx[i];
 
             if (map[ny][nx] == 1)
-            {
                 continue;
-            }
-
+            if (ny < 0 || ny > 2 || nx < 0 || nx > 4)
+                continue;
             if (visited[ny][nx] != 0)
-            {
                 continue;
-            }
 
-            visited[ny][nx] = visited[y][x] + 1;
+            visited[ny][nx] = visited[now.y][now.x] + 1;
 
-            q.push({ nx, ny });
+            q.push({ ny,nx });
         }
     }
 
@@ -65,18 +57,16 @@ int bfs(int startX, int startY, int endX, int endY)
 
 int main()
 {
-    int cheeseX, cheeseY;
-    int friendX, friendY;
+    int cheeseY, cheeseX;
+    int friendY, friendX;
 
-    cin >> cheeseX >> cheeseY;
+    cin >> cheeseY >> cheeseX;
+    cin >> friendY >> friendX;
 
-    cin >> friendX >> friendY;
+    int dist1 = bfs(0, 0, cheeseY, cheeseX);
+    int dist2 = bfs(cheeseY, cheeseX, friendY, friendX);
 
-    int distance1 = bfs(0, 0, cheeseX, cheeseY);
-
-    int distance2 = bfs(cheeseX, cheeseY, friendX, friendY);
-
-    cout << distance1 + distance2 << endl;
+    cout << dist1 + dist2 << endl;
 
     return 0;
 }
